@@ -1,4 +1,6 @@
 Visualization Outputs
+
+
 <img width="482" alt="Screenshot 2023-12-08 at 6 01 09 PM" src="https://github.com/leticiatca/RetailerAnalysis/assets/84414010/ac0e9f34-f03d-4674-9f62-493206ad0189">
 
 
