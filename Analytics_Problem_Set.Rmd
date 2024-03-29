@@ -1,6 +1,6 @@
 ---
 title: "Analytics Problem Set"
-author: "Leticia T, Anushka A and Kriti S"
+author: "Leticia T"
 date: "2023-11-25"
 output: html_document
 ---
@@ -171,8 +171,6 @@ boxplot(sales_clean$sale.amount,
 ```
 
 ```{r}
-##INSTRUCTIONS - PART 2
-
 ##Hypothesis testing
 aggregated_data <- sales_clean %>%
   group_by(category) %>%
