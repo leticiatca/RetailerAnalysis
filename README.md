@@ -215,7 +215,9 @@ t_test_result <- sales_clean %>%
 
 print(t_test_result)
 ```
-
+| t-value  | p-value | Lower Bound  | Upper Bound | Mean 'Backpacks'  | Mean 'Sleeping Gear' |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| -4.6425 | 3.629e-06 | -0.07207477 | -0.02926846 | 0.5335330 | 0.5842046 |
 
 With such a low p-value, lower than a confidence level of 0.05, we would reject the null hypothesis. In this case, the null hypothesis is that there is no difference in means between "Backpacks" and "Sleeping Gear."
 Based on the results, we can conclude that there is a statistically significant difference in gross margin between "Backpacks" and "Sleeping Gear." The negative sign of the confidence interval suggests that the mean gross margin for "Backpacks" is lower than that for "Sleeping Gear."
