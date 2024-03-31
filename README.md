@@ -113,6 +113,10 @@ skewness_coefficient <- skewness(sale_amount)
 skewness_coefficient
 ```
 
+| Mean  | Median | Standard Deviation  | Skewness Coefficient |
+| ------------- | ------------- | ------------- | ------------- |
+| 71.96  | 68 | 38.73  | 2.86  |
+
 ```
 #Boxplot for all sale.amount data
 boxplot(sale_amount, 
@@ -184,8 +188,22 @@ Using a z-score threshold of 3, we identified the presence of 75 outliers in the
 
 <img width="470" alt="Screenshot 2023-12-08 at 6 01 16 PM" src="https://github.com/leticiatca/RetailerAnalysis/assets/84414010/67047487-73de-425c-aef4-326e904e5c82">
 
+Findings from the exploratory analysis
+The analysis of sales data has unveiled several significant findings. Distribution Characteristics:
+- The distribution of sale amounts is positively skewed, indicating a prevalence of transactions with lower sale amounts and a scarcity of those with very high sale amounts.
+- The mean sale amount stands at approximately $71.93, surpassing the median of $68.00. This suggests the existence of higher-value transactions that contribute to pulling the mean above the median.
+- The standard deviation of sale amounts is approximately $38.74, signaling a moderate spread of transaction values around the mean.
+- The skewness coefficient, calculated at 2.86, confirms the positive skew in the distribution of sale amounts.
+
 ## Hypothesis Testing
-```{r}
+The hypothesis test looks to explore if there is a relevant variation in gross margin performance across departments. The hypothesis test will evaluate the difference in mean gross margin for the category with highest ‘Sale Amount’ (Sleeping Gear) and the category with highest ‘Gross Margin’ (Backpacks)
+
+
+Null Hypothesis (H0): The mean gross margin (GM$) for Backpacks is equal to the mean GM$ for Sleeping Gear. 
+
+Alternative Hypothesis (H1): The mean GM$ for Backpacks is significantly different from the mean GM$ for Sleeping Gear. 
+
+```
 ##Hypothesis testing
 aggregated_data <- sales_clean %>%
   group_by(category) %>%
@@ -197,12 +215,26 @@ t_test_result <- sales_clean %>%
 
 print(t_test_result)
 ```
-<img width="385" alt="Screenshot 2023-12-08 at 6 01 27 PM" src="https://github.com/leticiatca/RetailerAnalysis/assets/84414010/768a1d6f-c63e-4f98-bb42-6d495031d8e3">
 
+
+With such a low p-value, lower than a confidence level of 0.05, we would reject the null hypothesis. In this case, the null hypothesis is that there is no difference in means between "Backpacks" and "Sleeping Gear."
+Based on the results, we can conclude that there is a statistically significant difference in gross margin between "Backpacks" and "Sleeping Gear." The negative sign of the confidence interval suggests that the mean gross margin for "Backpacks" is lower than that for "Sleeping Gear."
+
+Some recommendations for them company would be to:
+- Evaluate the pricing strategy for both "Backpacks" and "Sleeping Gear." If GRO
+wants to increase the profit margin for "Sleeping Gear," they may want to consider
+reevaluating the pricing of backpacks to make it more profitable.
+- Examine the product mix and assortment within each category. Determine if there are specific products within "Sleeping Gear" that contribute significantly to its higher gross margin. Consider optimizing the product mix in "Backpacks" to include more
+profitable items.
+- Conduct a detailed cost analysis for both categories. Evaluate if there are cost
+differences or operational efficiencies that contribute to the observed gross margin disparity. Identifying cost drivers can guide decisions on cost reduction.
 
 ## Logistic Regression
+The logistic regression model to predict the variable 'clearance'
+We created a new binary variable called ‘Dummy_Clearance’ based on the ‘Price.Category’ variable that returns the value 1 if a product was sold under clearance and 0 otherwise.
+The model includes all product categories (bottoms, camping misc, footwear, jackets, sleeping gear, swimwear, tops, travel) with 'backpacks' as the reference category. Additionally, the unit cost and store variable is considered in the model to understand its impact on predicting whether a product falls under clearance.
 
-```{r}
+```
 ##Logistic regression
 
 #Create a dummy variable for 'Clearance'
@@ -215,8 +247,23 @@ sales_clean$dummy_clearance <- ifelse(sales_clean$price.category == "Clearance",
 logistic.model <- glm(dummy_clearance ~ category + store + unit.cost, family = binomial, data = sales_clean)
 summary(logistic.model)
 ```
+<img width="385" alt="Screenshot 2023-12-08 at 6 01 27 PM" src="https://github.com/leticiatca/RetailerAnalysis/assets/84414010/768a1d6f-c63e-4f98-bb42-6d495031d8e3">
 
-```{r}
+The reference variable for our model was ‘Backpacks’. The low p-values (α < 0.05) suggest that the corresponding variables are statistically significant in predicting the clearance outcome. The coefficients for each category represent the change in probability of clearance for that category compared to the reference category. For example, for category ‘Bottoms’, the predicted change of an item going to clearance is higher by 0.7779 units compared to the ‘Backpacks’.
+Items in these categories are more likely to go on clearance compared to ‘Backpacks’:
+- "Camping Misc" (Coefficient: 3.9342)
+- "Tops" (Coefficient: 1.0399)
+- “Bottoms” (Coefficient: 0.7779)
+- "Swimwear" (Coefficient: 0.5313)
+Items in these categories are less likely to go on clearance compared to ‘Backpacks’:
+- Jackets (Coefficient: -0.0607)
+- Footwear (Coefficient: -0.0913)
+- Travel (Coefficient: -0.6851)
+- Sleeping Gear (Coefficient: -1.2683)
+
+Analyzing the other predictor variables that are not ‘Category’. The coefficient for ‘Store’ is 0.3953, indicating that the store in which an item is located influences the likelihood of clearance. The positive coefficient suggests that items in certain stores are more likely to go on clearance. The coefficient for ‘Unit.Cost’ is 0.0269, indicating that the cost of the item influences the likelihood of clearance. The positive coefficient suggests that more expensive items are more likely to go on clearance.
+  
+```
 # Predict the clearance status using the logistic regression model
 predicted_clearance <- predict(logistic.model, newdata = sales_clean, type = "response")
 
@@ -226,10 +273,7 @@ predicted_class <- ifelse(predicted_clearance > 0.5, 1, 0)
 # Create a confusion matrix
 conf_matrix <- table(Actual = sales_clean$dummy_clearance, Predicted = predicted_class)
 print(conf_matrix)
-```
 
-
-```{r}
 # Calculate accuracy
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Accuracy:", accuracy, "\n")
@@ -241,6 +285,9 @@ cat("Sensitivity:", sensitivity, "\n")
 precision <- conf_matrix[2, 2] / sum(conf_matrix[, 2])
 cat("Precision:", precision, "\n")
 ```
+<img width="600" alt="Screenshot 2024-03-31 at 7 08 25 PM" src="https://github.com/leticiatca/RetailerAnalysis/assets/84414010/704c71f8-665a-4575-94d3-efc5a5c01455">
+
+The overall accuracy of the model is 83.9%, which indicates the proportion of correctly classified instances (both 0s and 1s). However, accuracy on its own might not be able to assess the model’s ability to predict. The low sensitivity score of 6.67%, indicates that the model struggles to correctly identify positive instances. It is missing a significant portion of actual positive cases. Still, the precision of 75.28% indicates that, when the model predicts positive, it is accurate most of the time. Future analysis could focus on other variables that potentially impact an item going to sale or not to achieve a higher sensitivity.
 
 ## Main Takeaways
 - Focus on understanding and managing clearance for categories with positive coefficients (e.g., "Camping Misc," "Tops," "Swimwear"). Try to figure out if there are specific trends within these categories that contribute to clearance.
